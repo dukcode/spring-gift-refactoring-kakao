@@ -203,6 +203,37 @@ AI는 크게 두 가지 역할로 활용되었다.
 
 ---
 
+## 10단계: option.feature 추가 (옵션 관리 시나리오)
+
+- **Prompt**: 나머지 cucumberTest들도 작성해줘. 단, 기존 프로덕션 코드는 수정하면 안돼.
+- **Action**:
+  - `src/test/resources/features/option.feature`: 5개 시나리오 작성
+    1. 옵션 추가 성공 (201 + 옵션 수 2개 확인)
+    2. 중복 옵션명 추가 시 실패 (400)
+    3. 옵션이 2개일 때 삭제 성공 (204 + 옵션 수 1개 확인)
+    4. 옵션이 1개일 때 삭제 시 실패 (400 + 옵션 수 1개 유지)
+    5. 존재하지 않는 상품에 옵션 추가 시 실패 (404)
+  - `OptionStepDefinitions.java`: 옵션 추가 When(POST), 존재하지 않는 상품에 추가 When, 옵션 삭제 When(DELETE), 옵션 개수 확인 Then(GET)
+- **Outcome**: `./gradlew cucumberTest` BUILD SUCCESSFUL (14 시나리오: gift 6 + product 3 + option 5 전체 통과).
+
+---
+
+## 11단계: wish.feature 추가 (위시리스트 관리 시나리오)
+
+- **Prompt**: wish도 가보자
+- **Action**:
+  - `src/test/resources/features/wish.feature`: 6개 시나리오 작성
+    1. 위시리스트에 상품 추가 성공 (201)
+    2. 이미 추가된 상품을 다시 추가하면 기존 위시 반환 (201→200)
+    3. 자신의 위시 삭제 성공 (204)
+    4. 다른 사용자의 위시 삭제 시 실패 (403)
+    5. 존재하지 않는 상품을 위시리스트에 추가 시 실패 (404)
+    6. 잘못된 인증으로 위시리스트 조회 시 실패 (401)
+  - `WishStepDefinitions.java`: 위시 추가 When(POST, 응답에서 wishId 추출→ScenarioContext 저장), 마지막 위시 삭제 When(DELETE), 존재하지 않는 상품 추가 When, 잘못된 인증 조회 When
+- **Outcome**: `./gradlew cucumberTest` BUILD SUCCESSFUL (20 시나리오: gift 6 + product 3 + option 5 + wish 6 전체 통과).
+
+---
+
 ## AI 활용 패턴 요약
 
 ### 전체 코드베이스 병렬 분석
