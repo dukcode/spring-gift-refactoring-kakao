@@ -275,6 +275,16 @@ AI는 크게 두 가지 역할로 활용되었다.
 
 ---
 
+## 15단계: 애플리케이션 컨테이너화 (Dockerfile + docker-compose app 서비스)
+
+- **Prompt**: Spring Boot 앱을 실행할 Dockerfile을 Multi-stage build로 작성하고, docker-compose.yml에 app 서비스를 추가해서 DB와 함께 실행되도록 해줘.
+- **Action**:
+  - `Dockerfile`: Multi-stage build (gradle:8.14-jdk21 빌드 → eclipse-temurin:21-jre 실행)
+  - `docker-compose.yml`: app 서비스 추가 (외부포트 28080→내부 8080, 환경변수로 PostgreSQL 연결 설정, `depends_on: postgres: condition: service_healthy`)
+- **Outcome**: Dockerfile 및 app 서비스 정의 완료. 포트 컨벤션 통일 (외부:내부 — DB 25432:5432, App 28080:8080).
+
+---
+
 ## AI 활용 패턴 요약
 
 ### 전체 코드베이스 병렬 분석
