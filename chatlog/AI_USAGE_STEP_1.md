@@ -249,6 +249,16 @@ AI는 크게 두 가지 역할로 활용되었다.
 
 ---
 
+## 13단계: Docker PostgreSQL 도입 및 cucumber 프로필 분리
+
+- **Prompt**: PostgreSQL 도입을 진행하자. docker-compose.yml에 PostgreSQL 15 서비스 정의(Healthcheck 포함)하고, application-cucumber.properties를 만들어 Docker PostgreSQL을 바라보도록 설정 분리해줘.
+- **Action**:
+  - `docker-compose.yml`: PostgreSQL 15 서비스 정의 (DB/User/Password: gift, 외부포트 25432→내부 5432, pg_isready healthcheck)
+  - `src/main/resources/application-cucumber.properties`: PostgreSQL JDBC 연결 (localhost:25432/gift), Flyway 비활성화, ddl-auto=create-drop
+- **Outcome**: Flyway migration SQL 파일이 존재하지 않아 cucumber 프로필도 기존 테스트와 동일하게 ddl-auto=create-drop 방식 적용.
+
+---
+
 ## AI 활용 패턴 요약
 
 ### 전체 코드베이스 병렬 분석
