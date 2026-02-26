@@ -36,6 +36,7 @@ dependencies {
     runtimeOnly("io.jsonwebtoken:jjwt-jackson")
     runtimeOnly("com.h2database:h2")
     runtimeOnly("com.mysql:mysql-connector-j")
+    runtimeOnly("org.postgresql:postgresql")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("io.rest-assured:rest-assured")
@@ -68,6 +69,15 @@ tasks.named<Test>("test") {
     }
 }
 
+val dockerUp by tasks.registering(Exec::class) {
+    commandLine("docker", "compose", "up", "-d", "--wait")
+}
+
+val dockerDown by tasks.registering(Exec::class) {
+    commandLine("docker", "compose", "down")
+    isIgnoreExitValue = true
+}
+
 tasks.register<Test>("cucumberTest") {
     testClassesDirs =
         sourceSets.test
@@ -80,5 +90,8 @@ tasks.register<Test>("cucumberTest") {
     useJUnitPlatform {
         includeEngines("cucumber")
     }
+    systemProperty("spring.profiles.active", "cucumber")
+    dependsOn(dockerUp)
+    finalizedBy(dockerDown)
     shouldRunAfter(tasks.named("test"))
 }

@@ -33,11 +33,9 @@ public class CommonStepDefinitions {
         RestAssured.port = port;
         RestAssured.baseURI = "http://localhost";
 
-        jdbcTemplate.execute("SET REFERENTIAL_INTEGRITY FALSE");
         for (String table : List.of("orders", "options", "wish", "product", "category", "member")) {
-            jdbcTemplate.execute("TRUNCATE TABLE " + table);
+            jdbcTemplate.execute("TRUNCATE TABLE " + table + " CASCADE");
         }
-        jdbcTemplate.execute("SET REFERENTIAL_INTEGRITY TRUE");
     }
 
     @조건("회원 {string}이 {int} 포인트를 가지고 있다")

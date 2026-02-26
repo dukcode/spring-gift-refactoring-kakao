@@ -259,6 +259,22 @@ AI는 크게 두 가지 역할로 활용되었다.
 
 ---
 
+## 14단계: Docker PostgreSQL 자동 라이프사이클 구성
+
+- **Prompt**: cucumberTest 실행 시 Docker가 자동으로 뜨고 지워지게 해줘. docker-compose up → Cucumber 테스트(profile=cucumber) → docker-compose down 순서로.
+- **Action**:
+  - `build.gradle.kts`:
+    - `runtimeOnly("org.postgresql:postgresql")` 의존성 추가
+    - `dockerUp` 태스크 등록 (`docker compose up -d --wait`)
+    - `dockerDown` 태스크 등록 (`docker compose down`, `isIgnoreExitValue = true`)
+    - `cucumberTest`에 `dependsOn(dockerUp)`, `finalizedBy(dockerDown)`, `systemProperty("spring.profiles.active", "cucumber")` 추가
+  - `CommonStepDefinitions.java`: H2 전용 `SET REFERENTIAL_INTEGRITY FALSE/TRUE` 제거 → PostgreSQL 호환 `TRUNCATE TABLE ... CASCADE`로 변경
+- **Outcome**:
+  - 첫 실행: `BadSqlGrammarException` — H2 전용 SQL이 PostgreSQL에서 실패. TRUNCATE CASCADE로 수정 후 해결.
+  - 최종: `./gradlew cucumberTest` BUILD SUCCESSFUL (dockerUp→Healthy→25 시나리오 통과→dockerDown 정상 정리).
+
+---
+
 ## AI 활용 패턴 요약
 
 ### 전체 코드베이스 병렬 분석
