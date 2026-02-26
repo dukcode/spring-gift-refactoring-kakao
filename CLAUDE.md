@@ -7,6 +7,7 @@
     - Architecture & APIs: `docs/TECH_SPEC.md` (프로젝트 구조, 현재 문제점)
     - Business Logic: `docs/FEATURES.md` (기능 명세서)
     - Testing Plan: `docs/TEST_STRATEGY.md` (테스트 전략)
+    - Task & Strategy: `README.md` (구현 기능 목록, 리팩터링 계획, 구현 전략)
 
 ## 2. Common Commands
 - Build: `./gradlew clean build -x test`
