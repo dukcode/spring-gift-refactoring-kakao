@@ -128,6 +128,81 @@ AI는 크게 두 가지 역할로 활용되었다.
 
 ---
 
+## 5단계: README.md 작업 지시서 작성
+
+### 프롬프트
+
+> 분석 내용을 바탕으로 README.md를 작성해줘. 프로젝트 소개, 구현 기능 목록, 리팩터링 계획(1단계 목표), 구현 전략, 커밋 규칙을 포함해서.
+
+### AI 활용 방식
+
+- 코드 분석 결과를 기반으로 이미 구현된 기능 목록을 체크리스트로 정리
+- 리팩터링 계획을 3단계(스타일 정리 → Dead Code 제거 → 서비스 추출)로 구조화
+- 구현 전략에 진행 순서와 서비스 추출 순서(의존성 적은 것 → 복잡한 것)를 명시
+
+### 산출물
+
+| 파일 | 내용 |
+|------|------|
+| `README.md` | 프로젝트 소개, 구현 기능 목록(체크리스트), 리팩터링 계획, 구현 전략(순서/절차/검증기준), 커밋 규칙, AI 활용 기록 링크 |
+
+---
+
+## 6단계: Cucumber BDD 의존성 추가 및 Feature 파일 작성
+
+- **Prompt**: Cucumber 의존성을 build.gradle.kts에 추가하고, 주문(선물 보내기) 시나리오를 Gherkin 한글 문법으로 gift.feature 파일로 작성
+- **Action**:
+  - `build.gradle.kts`: cucumber-java, cucumber-spring, cucumber-junit-platform-engine, junit-platform-suite, rest-assured 의존성 추가. `test` 태스크에서 cucumber 엔진 제외, `cucumberTest` 태스크 등록
+  - `src/test/resources/features/gift.feature`: 배경(회원, 카테고리, 상품, 옵션) + 주문 성공 시나리오 1개 작성
+  - `src/test/resources/junit-platform.properties`: Cucumber 엔진 설정 (features 경로, glue 패키지)
+- **Outcome**: `./gradlew clean build -x test` BUILD SUCCESSFUL. ktlint이 build.gradle.kts의 체인 메서드 줄바꿈을 요구하여 2회 수정 후 통과.
+
+---
+
+## 7단계: Step Definitions 및 Cucumber 설정 구현
+
+- **Prompt**: gift.feature를 실행할 수 있도록 GiftStepDefinitions, CommonStepDefinitions, CucumberSpringConfiguration, ScenarioContext 작성. `./gradlew cucumberTest`로 검증.
+- **Action**:
+  - `src/test/resources/application.properties`: H2(MySQL 호환 모드) + Flyway 비활성화 + JWT/카카오 테스트 설정
+  - `CucumberSpringConfiguration.java`: `@CucumberContextConfiguration` + `@SpringBootTest(RANDOM_PORT)`
+  - `ScenarioContext.java`: `@Component @ScenarioScope` — Response, ids(이름→ID), tokens(이름→JWT) 공유
+  - `CommonStepDefinitions.java`: `@Before` DB 초기화(TRUNCATE) + 회원 Given(JdbcTemplate + KeyHolder + JwtProvider로 토큰 생성) + 카테고리/상품 Given + 응답코드 Then
+  - `GiftStepDefinitions.java`: 옵션 Given + 주문 When(JWT Authorization 헤더 포함)
+- **Outcome**: 첫 실행 시 `PlaceholderResolutionException` 발생 — 테스트용 `application.properties`가 main 것을 덮어써서 JWT 설정이 누락됨. JWT/카카오 프로퍼티 추가 후 `./gradlew cucumberTest` BUILD SUCCESSFUL (1 시나리오 통과).
+- **교훈**: `src/test/resources/application.properties`는 main의 동명 파일을 완전히 덮어쓰므로, 테스트에서도 필요한 모든 프로퍼티를 명시해야 한다.
+
+---
+
+## 8단계: gift.feature 시나리오 확장 (재고/포인트 예외 케이스)
+
+- **Prompt**: 나머지 테스트 케이스들(재고 부족, 예외 케이스 등)도 모두 gift.feature에 시나리오로 추가하고 검증
+- **Action**:
+  - `gift.feature`: 1개 → 6개 시나리오로 확장
+    1. 재고와 포인트가 충분할 때 주문 성공 (201)
+    2. 주문 후 재고가 정확히 차감된다 (3+7=201, 1더→500)
+    3. 재고 전량 주문 후 추가 주문 시도 실패 (10→201, 1더→500)
+    4. 재고 부족 시 주문 실패하고 재고는 유지된다 (11→500, 10→201)
+    5. 재고가 0일 때 주문 실패 (품절 옵션, 1→500)
+    6. 포인트 부족 시 주문 실패 (100포인트로 25000원 상품→500)
+  - Step Definition 수정 불필요 — 기존 패턴으로 모든 시나리오 커버
+- **Outcome**: `./gradlew cucumberTest` BUILD SUCCESSFUL (6 시나리오 통과).
+- **참고**: "포인트 부족 후 재고 미차감 증명"은 의도적으로 제외. 현재 `@Transactional` 부재로 재고 차감 후 포인트 실패 시 재고만 빠지는 버그가 있어, 서비스 추출 + `@Transactional` 적용 후 보완 예정.
+
+---
+
+## 9단계: product.feature 추가 (상품 등록 시나리오)
+
+- **Prompt**: product.feature도 추가해줘
+- **Action**:
+  - `src/test/resources/features/product.feature`: 3개 시나리오 작성
+    1. 상품 등록 성공 (201 + 상품 수 확인 + 카테고리 검증)
+    2. 존재하지 않는 카테고리로 등록 시 실패 (404 + 0개)
+    3. "카카오" 포함 이름으로 등록 시 실패 (400 + 0개)
+  - `ProductStepDefinitions.java`: 상품 등록 When 2개(정상 카테고리, 존재하지 않는 카테고리) + 상품 수 확인 Then + 카테고리 검증 Then
+- **Outcome**: `./gradlew cucumberTest` BUILD SUCCESSFUL (9 시나리오: gift 6 + product 3 전체 통과).
+
+---
+
 ## AI 활용 패턴 요약
 
 ### 전체 코드베이스 병렬 분석
