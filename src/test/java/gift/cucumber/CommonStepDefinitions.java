@@ -6,7 +6,7 @@ import io.cucumber.java.ko.그러면;
 import io.cucumber.java.ko.조건;
 import io.restassured.RestAssured;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -16,7 +16,10 @@ import java.util.List;
 
 public class CommonStepDefinitions {
 
-    @LocalServerPort
+    @Value("${cucumber.target.base-uri}")
+    private String baseUri;
+
+    @Value("${cucumber.target.port}")
     private int port;
 
     @Autowired
@@ -30,8 +33,8 @@ public class CommonStepDefinitions {
 
     @Before
     public void setUp() {
+        RestAssured.baseURI = baseUri;
         RestAssured.port = port;
-        RestAssured.baseURI = "http://localhost";
 
         for (String table : List.of("orders", "options", "wish", "product", "category", "member")) {
             jdbcTemplate.execute("TRUNCATE TABLE " + table + " CASCADE");

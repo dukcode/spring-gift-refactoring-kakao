@@ -285,6 +285,22 @@ AI는 크게 두 가지 역할로 활용되었다.
 
 ---
 
+## 16단계: Cucumber 테스트 전략 변경 (내부 서버 → Docker 앱)
+
+- **Prompt**: Cucumber가 Docker에 떠 있는 외부 앱(localhost:28080)으로 요청을 보내도록 변경해줘. @SpringBootTest를 webEnvironment=NONE으로 변경.
+- **Action**:
+  - `CucumberSpringConfiguration.java`: `RANDOM_PORT` → `NONE` (테스트가 자체 웹서버를 띄우지 않음)
+  - `CommonStepDefinitions.java`: `@LocalServerPort` 제거, `@Value`로 `cucumber.target.base-uri`/`cucumber.target.port` 주입
+  - `application-cucumber.properties`: `ddl-auto=none` (스키마는 Docker 앱이 관리), `cucumber.target.*` 속성 추가, `jwt.secret` 통일
+  - `docker-compose.yml`: app 서비스에 healthcheck 추가 (`/dev/tcp/localhost/8080`), `JWT_SECRET` 환경변수 추가
+- **Outcome**:
+  - 1차 실행: 25개 중 11개 실패 — gift/wish 시나리오(인증 필요) 전부 실패. 원인: 테스트의 jwt.secret(`...for-test`)과 Docker 앱의 기본값(`...long`)이 불일치하여 JWT 검증 실패.
+  - 수정: `application-cucumber.properties`와 `docker-compose.yml`에 동일한 jwt.secret 설정.
+  - 최종: `./gradlew cucumberTest` BUILD SUCCESSFUL (25 시나리오 전체 통과).
+- **교훈**: 테스트가 외부 앱을 호출하는 구조에서는 JWT secret 같은 인증 설정이 양쪽에 동일해야 한다.
+
+---
+
 ## AI 활용 패턴 요약
 
 ### 전체 코드베이스 병렬 분석
