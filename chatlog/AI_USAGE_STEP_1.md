@@ -234,6 +234,21 @@ AI는 크게 두 가지 역할로 활용되었다.
 
 ---
 
+## 12단계: member.feature 추가 (회원 관리 시나리오)
+
+- **Prompt**: member도 가보자
+- **Action**:
+  - `src/test/resources/features/member.feature`: 5개 시나리오 작성
+    1. 회원 가입 성공 (201 + 토큰 포함 확인)
+    2. 중복 이메일로 회원 가입 시 실패 (400)
+    3. 로그인 성공 (200 + 토큰 포함 확인)
+    4. 존재하지 않는 이메일로 로그인 시 실패 (400)
+    5. 잘못된 비밀번호로 로그인 시 실패 (400)
+  - `MemberStepDefinitions.java`: 회원가입 When(POST /api/members/register), 로그인 When(POST /api/members/login), 토큰 포함 확인 Then(응답 JSON의 token 필드 검증)
+- **Outcome**: `./gradlew cucumberTest` BUILD SUCCESSFUL (25 시나리오: gift 6 + member 5 + option 5 + product 3 + wish 6 전체 통과).
+
+---
+
 ## AI 활용 패턴 요약
 
 ### 전체 코드베이스 병렬 분석
