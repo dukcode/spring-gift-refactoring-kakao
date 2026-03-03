@@ -1,6 +1,6 @@
 package gift.product;
 
-import gift.category.CategoryRepository;
+import gift.category.CategoryService;
 import java.util.List;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,11 +14,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("/admin/products")
 public class AdminProductController {
     private final ProductService productService;
-    private final CategoryRepository categoryRepository;
+    private final CategoryService categoryService;
 
-    public AdminProductController(ProductService productService, CategoryRepository categoryRepository) {
+    public AdminProductController(ProductService productService, CategoryService categoryService) {
         this.productService = productService;
-        this.categoryRepository = categoryRepository;
+        this.categoryService = categoryService;
     }
 
     @GetMapping
@@ -29,7 +29,7 @@ public class AdminProductController {
 
     @GetMapping("/new")
     public String newForm(Model model) {
-        model.addAttribute("categories", categoryRepository.findAll());
+        model.addAttribute("categories", categoryService.findAll());
         return "product/new";
     }
 
@@ -54,7 +54,7 @@ public class AdminProductController {
     @GetMapping("/{id}/edit")
     public String editForm(@PathVariable Long id, Model model) {
         model.addAttribute("product", productService.findById(id));
-        model.addAttribute("categories", categoryRepository.findAll());
+        model.addAttribute("categories", categoryService.findAll());
         return "product/edit";
     }
 
@@ -98,7 +98,7 @@ public class AdminProductController {
         model.addAttribute("price", price);
         model.addAttribute("imageUrl", imageUrl);
         model.addAttribute("categoryId", categoryId);
-        model.addAttribute("categories", categoryRepository.findAll());
+        model.addAttribute("categories", categoryService.findAll());
     }
 
     private void populateEditForm(
@@ -116,6 +116,6 @@ public class AdminProductController {
         model.addAttribute("price", price);
         model.addAttribute("imageUrl", imageUrl);
         model.addAttribute("categoryId", categoryId);
-        model.addAttribute("categories", categoryRepository.findAll());
+        model.addAttribute("categories", categoryService.findAll());
     }
 }

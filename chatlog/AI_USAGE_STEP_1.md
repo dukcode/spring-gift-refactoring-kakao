@@ -437,6 +437,16 @@ AI는 크게 두 가지 역할로 활용되었다.
 
 ---
 
+## 26단계: AdminProductController의 CategoryRepository → CategoryService 교체
+
+- **Prompt**: `AdminProductController`가 `CategoryRepository`를 직접 사용하는 마지막 잔존 케이스 제거. `CategoryService.findAll()`로 교체.
+- **Action**:
+  - `AdminProductController.java` 수정: `CategoryRepository` → `CategoryService`로 교체 (import, 필드, 생성자 파라미터, `findAll()` 호출 4곳)
+  - 이로써 모든 컨트롤러가 Repository를 직접 참조하지 않고 Service만 의존하게 됨
+- **Outcome**: `./gradlew clean build -x test` BUILD SUCCESSFUL, `./gradlew cucumberTest` BUILD SUCCESSFUL (25 시나리오 전체 통과).
+
+---
+
 ## AI 활용 패턴 요약
 
 ### 전체 코드베이스 병렬 분석
