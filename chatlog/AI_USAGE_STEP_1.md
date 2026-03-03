@@ -313,6 +313,19 @@ AI는 크게 두 가지 역할로 활용되었다.
 
 ---
 
+## 18단계: Dead Code 제거
+
+- **Prompt**: IDE 정적 분석으로 미사용 필드/메서드/변수 식별. `OrderController`의 미사용 `WishRepository` 제거. 삭제 전 git blame으로 의도 확인.
+- **Action**:
+  - **git blame 확인**: `OrderController.java` 전체가 `wotjd243` (2026-02-18) 초기 커밋. 주석 `// 6. cleanup wish`로 계획만 존재, 구현 없음. `WishRepository`는 미구현 기능의 흔적.
+  - **정적 분석 결과**:
+    1. `OrderController.java`: 미사용 `WishRepository` (import, 필드, 생성자 파라미터) + 미구현 기능 주석 → **제거**
+    2. `JwtProvider.java`, `AuthenticationResolver.java`, `MemberController.java`, `AdminMemberController.java`: 단일 생성자에 불필요한 `@Autowired` → **제거**
+  - **수정 파일**: `OrderController.java`, `JwtProvider.java`, `AuthenticationResolver.java`, `MemberController.java`, `AdminMemberController.java`
+- **Outcome**: `./gradlew clean build -x test` BUILD SUCCESSFUL, `./gradlew cucumberTest` BUILD SUCCESSFUL (25 시나리오 전체 통과). 작동 변경 없음 확인. README.md 체크박스 업데이트 완료.
+
+---
+
 ## AI 활용 패턴 요약
 
 ### 전체 코드베이스 병렬 분석

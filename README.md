@@ -79,9 +79,9 @@ Spring Boot 기반의 선물하기 서비스. 사용자가 카테고리와 상�
 
 ### 불필요한 코드(Dead Code) 제거
 
-- [ ] IDE 정적 분석으로 미사용 필드/메서드/변수 식별
-- [ ] `OrderController`에 주입되었으나 사용되지 않는 `WishRepository` 제거
-- [ ] 삭제 전 git blame으로 의도 확인, TODO/주석에 이유가 있는지 확인
+- [x] IDE 정적 분석으로 미사용 필드/메서드/변수 식별
+- [x] `OrderController`에 주입되었으나 사용되지 않는 `WishRepository` 제거
+- [x] 삭제 전 git blame으로 의도 확인, TODO/주석에 이유가 있는지 확인
 
 ### 서비스 계층 추출 (구조 변경, 작동 변경 없음)
 
