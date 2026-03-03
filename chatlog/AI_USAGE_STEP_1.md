@@ -346,6 +346,24 @@ AI는 크게 두 가지 역할로 활용되었다.
 
 ---
 
+## 20단계: MemberService 추출
+
+- **Prompt**: `MemberService` 추출. `MemberController` + `AdminMemberController`의 중복 로직 통합.
+- **Action**:
+  - `MemberService.java` 신규 생성 (`@Service`):
+    - `findAll()`, `findById(Long id)`: 조회
+    - `register(String email, String password)`: 이메일 중복 체크 + 저장 (두 컨트롤러 공통 로직 통합)
+    - `login(String email, String password)`: 이메일 조회 + 비밀번호 검증
+    - `update(Long id, String email, String password)`: `@Transactional` — 조회 + 수정 + 저장
+    - `chargePoint(Long id, int amount)`: `@Transactional` — 조회 + 충전 + 저장
+    - `delete(Long id)`: 삭제
+  - `MemberController.java` 수정: `MemberRepository` → `MemberService` 위임. register/login 로직 서비스로 이동.
+  - `AdminMemberController.java` 수정: `MemberRepository` → `MemberService` 위임. create에서 `register()` 재사용 (중복 제거). findById 반복 코드 서비스의 `findById()` 하나로 통합.
+  - **핵심 중복 제거**: 회원 생성 시 이메일 중복 체크 + 저장 로직이 `MemberService.register()`로 통합됨
+- **Outcome**: `./gradlew clean build -x test` BUILD SUCCESSFUL, `./gradlew cucumberTest` BUILD SUCCESSFUL (25 시나리오 전체 통과).
+
+---
+
 ## AI 활용 패턴 요약
 
 ### 전체 코드베이스 병렬 분석

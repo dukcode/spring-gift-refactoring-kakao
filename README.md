@@ -88,7 +88,7 @@ Spring Boot 기반의 선물하기 서비스. 사용자가 카테고리와 상�
 > Controller의 비즈니스 로직을 Service로 이동. Controller는 요청 검증과 위임만 담당.
 
 - [x] `OrderService` 추출 — 최우선. 7단계 주문 흐름(재고 차감 + 포인트 차감 + 저장 + 카카오 알림)을 `@Transactional` 서비스로 이동
-- [ ] `MemberService` 추출 — `MemberController` + `AdminMemberController`의 중복 로직 통합
+- [x] `MemberService` 추출 — `MemberController` + `AdminMemberController`의 중복 로직 통합
 - [ ] `ProductService` 추출 — `ProductController` + `AdminProductController`의 중복 로직 통합
 - [ ] `OptionService` 추출 — 이름 검증, 중복 체크, 최소 1개 규칙을 서비스로 이동
 - [ ] `WishService` 추출 — 중복 추가 방지, 소유권 검증을 서비스로 이동
