@@ -364,6 +364,22 @@ AI는 크게 두 가지 역할로 활용되었다.
 
 ---
 
+## 21단계: ProductService 추출
+
+- **Prompt**: `ProductService` 추출. `ProductController` + `AdminProductController`의 중복 로직 통합.
+- **Action**:
+  - `ProductService.java` 신규 생성 (`@Service`):
+    - `findAll()`, `findAll(Pageable)`, `findById(Long)`: 조회 (NoSuchElementException)
+    - `create(String name, int price, String imageUrl, Long categoryId)`: 카테고리 조회 + 저장
+    - `update(Long id, ...)`: `@Transactional` — 상품·카테고리 조회 + 수정 + 저장
+    - `delete(Long id)`: 삭제
+  - `ProductController.java` 수정: `ProductRepository` + `CategoryRepository` → `ProductService` 1개로 축소. 이름 검증(`allowKakao=false`)은 컨트롤러에 유지.
+  - `AdminProductController.java` 수정: `ProductRepository` → `ProductService` 위임. 이름 검증(`allowKakao=true`)과 폼 렌더링용 `CategoryRepository`는 컨트롤러에 유지.
+  - **설계 결정**: 이름 검증 정책이 API/Admin에서 다르므로(`allowKakao` 차이) 검증은 컨트롤러에 유지, 핵심 CRUD만 서비스로 추출.
+- **Outcome**: `./gradlew clean build -x test` BUILD SUCCESSFUL, `./gradlew cucumberTest` BUILD SUCCESSFUL (25 시나리오 전체 통과).
+
+---
+
 ## AI 활용 패턴 요약
 
 ### 전체 코드베이스 병렬 분석
