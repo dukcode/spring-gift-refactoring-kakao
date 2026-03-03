@@ -380,6 +380,20 @@ AI는 크게 두 가지 역할로 활용되었다.
 
 ---
 
+## 22단계: OptionService 추출
+
+- **Prompt**: `OptionService` 추출. 이름 검증, 중복 체크, 최소 1개 규칙을 서비스로 이동.
+- **Action**:
+  - `OptionService.java` 신규 생성 (`@Service`):
+    - `getOptions(Long productId)`: 상품 존재 확인 + 옵션 목록 조회
+    - `create(Long productId, String name, int quantity)`: 이름 검증 + 상품 존재 확인 + 중복명 체크 + 저장
+    - `delete(Long productId, Long optionId)`: 상품 존재 확인 + 최소 1개 규칙 + 옵션 존재/소속 확인 + 삭제
+    - `validateName()`: private 헬퍼
+  - `OptionController.java` 수정: `OptionRepository` + `ProductRepository` → `OptionService` 1개로 축소. 컨트롤러는 HTTP 매핑(NoSuchElementException→404, IllegalArgumentException→400)만 담당.
+- **Outcome**: `./gradlew clean build -x test` BUILD SUCCESSFUL, `./gradlew cucumberTest` BUILD SUCCESSFUL (25 시나리오 전체 통과).
+
+---
+
 ## AI 활용 패턴 요약
 
 ### 전체 코드베이스 병렬 분석
