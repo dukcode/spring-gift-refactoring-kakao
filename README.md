@@ -73,9 +73,9 @@ Spring Boot 기반의 선물하기 서비스. 사용자가 카테고리와 상�
 
 ### 스타일 정리
 
-- [ ] Google Java Style 기반으로 코드 포맷 통일
-- [ ] 불필요한 공백, 빈 줄, 일관성 없는 들여쓰기 정리
-- [ ] import 순서 정리 (미사용 import 제거)
+- [x] Google Java Style 기반으로 코드 포맷 통일
+- [x] 불필요한 공백, 빈 줄, 일관성 없는 들여쓰기 정리
+- [x] import 순서 정리 (미사용 import 제거)
 
 ### 불필요한 코드(Dead Code) 제거
 

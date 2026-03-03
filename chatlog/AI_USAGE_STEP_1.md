@@ -301,6 +301,18 @@ AI는 크게 두 가지 역할로 활용되었다.
 
 ---
 
+## 17단계: 스타일 정리 — Google Java Style 기반 코드 포맷 통일
+
+- **Prompt**: Google Java Style 기반으로 코드 포맷 통일. 불필요한 공백/빈 줄/일관성 없는 들여쓰기 정리, import 순서 정리 및 미사용 import 제거.
+- **Action**:
+  - **Import 순서 정리 (12개 파일)**: Google Java Style(모든 non-static import를 하나의 블록으로, ASCII 알파벳 순)에 맞게 수정. 기존에는 IntelliJ 기본 설정으로 `java.*`/`javax.*`가 blank line으로 분리되어 있었음.
+    - `OptionController.java`, `JwtProvider.java`, `CategoryController.java`, `ProductController.java`, `AdminProductController.java`, `WishController.java`, `OrderController.java`, `Product.java`, `Order.java`, `OptionRepository.java`, `WishRepository.java`, `MemberRepository.java`
+  - **불필요한 빈 줄 제거 (1개 파일)**: `Member.java`에서 필드 선언 사이의 불필요한 빈 줄 제거 (다른 엔티티들과 일관성 맞춤)
+  - **미사용 import**: 전수 검사 결과 없음 (`OrderController`의 `WishRepository` import은 필드에서 사용 중이므로 Dead Code 제거 단계에서 처리 예정)
+- **Outcome**: `./gradlew clean build -x test` BUILD SUCCESSFUL, `./gradlew cucumberTest` BUILD SUCCESSFUL (25 시나리오 전체 통과). 작동 변경 없음 확인.
+
+---
+
 ## AI 활용 패턴 요약
 
 ### 전체 코드베이스 병렬 분석
