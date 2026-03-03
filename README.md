@@ -91,7 +91,7 @@ Spring Boot 기반의 선물하기 서비스. 사용자가 카테고리와 상�
 - [x] `MemberService` 추출 — `MemberController` + `AdminMemberController`의 중복 로직 통합
 - [x] `ProductService` 추출 — `ProductController` + `AdminProductController`의 중복 로직 통합
 - [x] `OptionService` 추출 — 이름 검증, 중복 체크, 최소 1개 규칙을 서비스로 이동
-- [ ] `WishService` 추출 — 중복 추가 방지, 소유권 검증을 서비스로 이동
+- [x] `WishService` 추출 — 중복 추가 방지, 소유권 검증을 서비스로 이동
 - [ ] `CategoryService` 추출 — 단순 CRUD이지만 계층 일관성을 위해 추출
 - [ ] `KakaoAuthService` 추출 — OAuth 콜백 흐름(토큰 교환 → 회원 조회/생성 → JWT 발급)을 서비스로 이동
 

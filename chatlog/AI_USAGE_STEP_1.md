@@ -394,6 +394,21 @@ AI는 크게 두 가지 역할로 활용되었다.
 
 ---
 
+## 23단계: WishService 추출
+
+- **Prompt**: `WishService` 추출. 중복 추가 방지, 소유권 검증을 서비스로 이동.
+- **Action**:
+  - `WishService.java` 신규 생성 (`@Service`):
+    - `getWishes(Long memberId, Pageable)`: 위시 목록 조회 (페이징)
+    - `findByMemberAndProduct(Long memberId, Long productId)`: 중복 확인용 Optional 반환
+    - `addWish(Long memberId, Long productId)`: 상품 존재 확인 + 저장 (NoSuchElementException)
+    - `removeWish(Long memberId, Long wishId)`: 위시 존재 확인 + 소유권 검증 + 삭제 (IllegalStateException→403)
+  - `WishController.java` 수정: `WishRepository` + `ProductRepository` → `WishService` 1개로 축소. 컨트롤러는 인증 체크 + HTTP 매핑(NoSuchElementException→404, IllegalStateException→403)만 담당.
+  - **설계 결정**: `findByMemberAndProduct`와 `addWish`를 분리하여 컨트롤러에서 200(기존 반환) vs 201(신규 생성) HTTP 상태코드를 구분할 수 있도록 함. 소유권 위반은 `IllegalStateException`으로 표현하여 `NoSuchElementException`(404)과 구분.
+- **Outcome**: `./gradlew clean build -x test` BUILD SUCCESSFUL, `./gradlew cucumberTest` BUILD SUCCESSFUL (25 시나리오 전체 통과).
+
+---
+
 ## AI 활용 패턴 요약
 
 ### 전체 코드베이스 병렬 분석
