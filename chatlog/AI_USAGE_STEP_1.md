@@ -326,6 +326,26 @@ AI는 크게 두 가지 역할로 활용되었다.
 
 ---
 
+## 19단계: OrderService 추출
+
+- **Prompt**: `OrderService` 추출. 7단계 주문 흐름(재고 차감 + 포인트 차감 + 저장 + 카카오 알림)을 `@Transactional` 서비스로 이동.
+- **Action**:
+  - `OrderService.java` 신규 생성 (`@Service`):
+    - `getOrders(Long memberId, Pageable)`: 주문 목록 조회 (repository 위임)
+    - `createOrder(Member, Long optionId, int quantity, String message)`: `@Transactional` — 옵션 조회 → 재고 차감 → 포인트 차감 → 주문 저장 → 카카오 알림
+    - `sendKakaoMessageIfPossible()`: private 헬퍼 (best-effort)
+  - `OrderController.java` 수정:
+    - 5개 의존성(OrderRepository, OptionRepository, MemberRepository, KakaoMessageClient) → `OrderService` 1개 + `AuthenticationResolver` 1개로 축소
+    - 인증 체크만 컨트롤러에 유지, 비즈니스 로직은 서비스에 위임
+    - 옵션 미존재 시 `NoSuchElementException` → 404 매핑
+  - **설계 결정**:
+    - 인증(auth check)은 HTTP 관심사이므로 컨트롤러에 유지
+    - 서비스는 엔티티(`Order`)를 반환, 컨트롤러에서 DTO(`OrderResponse`)로 변환
+    - `@Transactional`으로 포인트 차감 실패 시 재고 차감도 롤백 (기존 트랜잭션 부재 버그 수정 — chatlog 8단계에서 의도한 바)
+- **Outcome**: `./gradlew clean build -x test` BUILD SUCCESSFUL, `./gradlew cucumberTest` BUILD SUCCESSFUL (25 시나리오 전체 통과).
+
+---
+
 ## AI 활용 패턴 요약
 
 ### 전체 코드베이스 병렬 분석
