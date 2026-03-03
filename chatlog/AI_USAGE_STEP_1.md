@@ -424,6 +424,19 @@ AI는 크게 두 가지 역할로 활용되었다.
 
 ---
 
+## 25단계: KakaoAuthService 추출
+
+- **Prompt**: `KakaoAuthService` 추출. OAuth 콜백 흐름(토큰 교환 → 회원 조회/생성 → JWT 발급)을 서비스로 이동.
+- **Action**:
+  - `KakaoAuthService.java` 신규 생성 (`@Service`):
+    - `buildAuthorizationUrl()`: 카카오 인가 URL 구성 (client_id, redirect_uri, scope 등)
+    - `processCallback(String code)`: `@Transactional` — 인가 코드로 액세스 토큰 교환 → 사용자 정보 조회 → 회원 조회/생성 → 카카오 액세스 토큰 저장 → JWT 발급
+  - `KakaoAuthController.java` 수정: `KakaoLoginProperties` + `KakaoLoginClient` + `MemberRepository` + `JwtProvider` 4개 의존성 → `KakaoAuthService` 1개로 축소. 컨트롤러는 HTTP 리다이렉트(302)와 응답(200 + TokenResponse)만 담당.
+  - **설계 결정**: `login()`의 URL 구성도 OAuth 설정 로직이므로 서비스로 이동. `processCallback()`에 `@Transactional` 적용하여 회원 조회/생성 + 액세스 토큰 저장이 원자적으로 처리되도록 함.
+- **Outcome**: `./gradlew clean build -x test` BUILD SUCCESSFUL, `./gradlew cucumberTest` BUILD SUCCESSFUL (25 시나리오 전체 통과).
+
+---
+
 ## AI 활용 패턴 요약
 
 ### 전체 코드베이스 병렬 분석
