@@ -409,6 +409,21 @@ AI는 크게 두 가지 역할로 활용되었다.
 
 ---
 
+## 24단계: CategoryService 추출
+
+- **Prompt**: `CategoryService` 추출. 단순 CRUD이지만 계층 일관성을 위해 추출.
+- **Action**:
+  - `CategoryService.java` 신규 생성 (`@Service`):
+    - `findAll()`: 카테고리 목록 조회
+    - `create(String name, String color, String imageUrl, String description)`: 저장
+    - `update(Long id, ...)`: `@Transactional` — 조회 + 수정 + 저장 (NoSuchElementException)
+    - `delete(Long id)`: 삭제
+  - `CategoryController.java` 수정: `CategoryRepository` → `CategoryService` 1개로 축소. 컨트롤러는 HTTP 매핑(NoSuchElementException→404)만 담당.
+  - **범위 판단**: `ProductService`와 `AdminProductController`가 직접 사용하는 `CategoryRepository`는 카테고리 ID로 조회하는 용도이므로 그대로 유지 (불필요한 의존성 우회 방지).
+- **Outcome**: `./gradlew clean build -x test` BUILD SUCCESSFUL, `./gradlew cucumberTest` BUILD SUCCESSFUL (25 시나리오 전체 통과).
+
+---
+
 ## AI 활용 패턴 요약
 
 ### 전체 코드베이스 병렬 분석
