@@ -1,6 +1,6 @@
 package gift.member;
 
-import gift.auth.JwtProvider;
+import gift.auth.AuthService;
 import gift.auth.TokenResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -20,25 +20,21 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/members")
 public class MemberController {
-    private final MemberService memberService;
-    private final JwtProvider jwtProvider;
+    private final AuthService authService;
 
-    public MemberController(MemberService memberService, JwtProvider jwtProvider) {
-        this.memberService = memberService;
-        this.jwtProvider = jwtProvider;
+    public MemberController(AuthService authService) {
+        this.authService = authService;
     }
 
     @PostMapping("/register")
     public ResponseEntity<TokenResponse> register(@Valid @RequestBody MemberRequest request) {
-        Member member = memberService.register(request.email(), request.password());
-        String token = jwtProvider.createToken(member.getEmail());
+        String token = authService.registerAndCreateToken(request.email(), request.password());
         return ResponseEntity.status(HttpStatus.CREATED).body(new TokenResponse(token));
     }
 
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> login(@Valid @RequestBody MemberRequest request) {
-        Member member = memberService.login(request.email(), request.password());
-        String token = jwtProvider.createToken(member.getEmail());
+        String token = authService.loginAndCreateToken(request.email(), request.password());
         return ResponseEntity.ok(new TokenResponse(token));
     }
 
