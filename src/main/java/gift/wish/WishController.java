@@ -1,9 +1,11 @@
 package gift.wish;
 
 import gift.auth.AuthenticationResolver;
+import gift.wish.WishService.AddWishResult;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.NoSuchElementException;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +30,7 @@ public class WishController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getWishes(
+    public ResponseEntity<Page<WishResponse>> getWishes(
         @RequestHeader("Authorization") String authorization,
         Pageable pageable
     ) {
@@ -50,15 +52,13 @@ public class WishController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        var existing = wishService.findByMemberAndProduct(member.getId(), request.productId());
-        if (existing.isPresent()) {
-            return ResponseEntity.ok(WishResponse.from(existing.get()));
-        }
-
         try {
-            var saved = wishService.addWish(member.getId(), request.productId());
-            return ResponseEntity.created(URI.create("/api/wishes/" + saved.getId()))
-                .body(WishResponse.from(saved));
+            AddWishResult result = wishService.addWishIdempotent(member.getId(), request.productId());
+            if (result.created()) {
+                return ResponseEntity.created(URI.create("/api/wishes/" + result.wish().getId()))
+                    .body(WishResponse.from(result.wish()));
+            }
+            return ResponseEntity.ok(WishResponse.from(result.wish()));
         } catch (NoSuchElementException e) {
             return ResponseEntity.notFound().build();
         }
