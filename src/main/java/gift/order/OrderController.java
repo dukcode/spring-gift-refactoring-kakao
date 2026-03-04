@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.NoSuchElementException;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,7 +32,7 @@ public class OrderController {
     ) {
         var member = authenticationResolver.extractMember(authorization);
         if (member == null) {
-            return ResponseEntity.status(401).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         var orders = orderService.getOrders(member.getId(), pageable).map(OrderResponse::from);
         return ResponseEntity.ok(orders);
@@ -44,7 +45,7 @@ public class OrderController {
     ) {
         var member = authenticationResolver.extractMember(authorization);
         if (member == null) {
-            return ResponseEntity.status(401).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         try {
