@@ -1,9 +1,8 @@
 package gift.member;
 
-import gift.auth.JwtProvider;
+import gift.auth.AuthService;
 import gift.auth.TokenResponse;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -21,36 +20,21 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/members")
 public class MemberController {
-    private final MemberRepository memberRepository;
-    private final JwtProvider jwtProvider;
+    private final AuthService authService;
 
-    @Autowired
-    public MemberController(MemberRepository memberRepository, JwtProvider jwtProvider) {
-        this.memberRepository = memberRepository;
-        this.jwtProvider = jwtProvider;
+    public MemberController(AuthService authService) {
+        this.authService = authService;
     }
 
     @PostMapping("/register")
     public ResponseEntity<TokenResponse> register(@Valid @RequestBody MemberRequest request) {
-        if (memberRepository.existsByEmail(request.email())) {
-            throw new IllegalArgumentException("Email is already registered.");
-        }
-
-        final Member member = memberRepository.save(new Member(request.email(), request.password()));
-        final String token = jwtProvider.createToken(member.getEmail());
+        String token = authService.registerAndCreateToken(request.email(), request.password());
         return ResponseEntity.status(HttpStatus.CREATED).body(new TokenResponse(token));
     }
 
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> login(@Valid @RequestBody MemberRequest request) {
-        final Member member = memberRepository.findByEmail(request.email())
-            .orElseThrow(() -> new IllegalArgumentException("Invalid email or password."));
-
-        if (member.getPassword() == null || !member.getPassword().equals(request.password())) {
-            throw new IllegalArgumentException("Invalid email or password.");
-        }
-
-        final String token = jwtProvider.createToken(member.getEmail());
+        String token = authService.loginAndCreateToken(request.email(), request.password());
         return ResponseEntity.ok(new TokenResponse(token));
     }
 
