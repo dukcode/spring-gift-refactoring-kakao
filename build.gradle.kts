@@ -44,6 +44,7 @@ dependencies {
     testImplementation("io.cucumber:cucumber-spring:7.22.0")
     testImplementation("io.cucumber:cucumber-junit-platform-engine:7.22.0")
     testImplementation("org.junit.platform:junit-platform-suite")
+    testImplementation("com.tngtech.archunit:archunit-junit5:1.3.0")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
