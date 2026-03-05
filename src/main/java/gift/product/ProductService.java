@@ -32,20 +32,20 @@ public class ProductService {
             .orElseThrow(() -> new NoSuchElementException("상품이 존재하지 않습니다. id=" + id));
     }
 
-    public Product create(String name, int price, String imageUrl, Long categoryId, boolean allowKakao) {
-        validateName(name, allowKakao);
-        Category category = categoryRepository.findById(categoryId)
-            .orElseThrow(() -> new NoSuchElementException("카테고리가 존재하지 않습니다. id=" + categoryId));
-        return productRepository.save(new Product(name, price, imageUrl, category));
+    public Product create(ProductRequest request, boolean allowKakao) {
+        validateName(request.name(), allowKakao);
+        Category category = categoryRepository.findById(request.categoryId())
+            .orElseThrow(() -> new NoSuchElementException("카테고리가 존재하지 않습니다. id=" + request.categoryId()));
+        return productRepository.save(request.toEntity(category));
     }
 
     @Transactional
-    public Product update(Long id, String name, int price, String imageUrl, Long categoryId, boolean allowKakao) {
-        validateName(name, allowKakao);
+    public Product update(Long id, ProductRequest request, boolean allowKakao) {
+        validateName(request.name(), allowKakao);
         Product product = findById(id);
-        Category category = categoryRepository.findById(categoryId)
-            .orElseThrow(() -> new NoSuchElementException("카테고리가 존재하지 않습니다. id=" + categoryId));
-        product.update(name, price, imageUrl, category);
+        Category category = categoryRepository.findById(request.categoryId())
+            .orElseThrow(() -> new NoSuchElementException("카테고리가 존재하지 않습니다. id=" + request.categoryId()));
+        product.update(request.name(), request.price(), request.imageUrl(), category);
         return product;
     }
 

@@ -39,7 +39,7 @@ public class OptionController {
         @PathVariable Long productId,
         @Valid @RequestBody OptionRequest request
     ) {
-        Option saved = optionService.create(productId, request.name(), request.quantity());
+        Option saved = optionService.create(productId, request);
         URI location = URI.create("/api/products/" + productId + "/options/" + saved.getId());
         return ResponseEntity.created(location)
             .body(OptionResponse.from(saved));

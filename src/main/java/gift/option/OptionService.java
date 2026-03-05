@@ -24,17 +24,17 @@ public class OptionService {
     }
 
     @Transactional
-    public Option create(Long productId, String name, int quantity) {
-        validateName(name);
+    public Option create(Long productId, OptionRequest request) {
+        validateName(request.name());
 
         Product product = productRepository.findById(productId)
             .orElseThrow(() -> new NoSuchElementException("상품이 존재하지 않습니다. id=" + productId));
 
-        if (optionRepository.existsByProductIdAndName(productId, name)) {
+        if (optionRepository.existsByProductIdAndName(productId, request.name())) {
             throw new IllegalArgumentException("이미 존재하는 옵션명입니다.");
         }
 
-        return optionRepository.save(new Option(product, name, quantity));
+        return optionRepository.save(new Option(product, request.name(), request.quantity()));
     }
 
     @Transactional

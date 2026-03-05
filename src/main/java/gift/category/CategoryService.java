@@ -17,15 +17,15 @@ public class CategoryService {
         return categoryRepository.findAll();
     }
 
-    public Category create(String name, String color, String imageUrl, String description) {
-        return categoryRepository.save(new Category(name, color, imageUrl, description));
+    public Category create(CategoryRequest request) {
+        return categoryRepository.save(request.toEntity());
     }
 
     @Transactional
-    public Category update(Long id, String name, String color, String imageUrl, String description) {
+    public Category update(Long id, CategoryRequest request) {
         Category category = categoryRepository.findById(id)
             .orElseThrow(() -> new NoSuchElementException("카테고리가 존재하지 않습니다. id=" + id));
-        category.update(name, color, imageUrl, description);
+        category.update(request.name(), request.color(), request.imageUrl(), request.description());
         return category;
     }
 

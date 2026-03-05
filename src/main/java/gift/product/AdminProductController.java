@@ -42,7 +42,7 @@ public class AdminProductController {
         Model model
     ) {
         try {
-            productService.create(name, price, imageUrl, categoryId, true);
+            productService.create(new ProductRequest(name, price, imageUrl, categoryId), true);
         } catch (IllegalArgumentException e) {
             populateNewForm(model, List.of(e.getMessage()), name, price, imageUrl, categoryId);
             return "product/new";
@@ -67,7 +67,7 @@ public class AdminProductController {
         Model model
     ) {
         try {
-            productService.update(id, name, price, imageUrl, categoryId, true);
+            productService.update(id, new ProductRequest(name, price, imageUrl, categoryId), true);
         } catch (IllegalArgumentException e) {
             Product product = productService.findById(id);
             populateEditForm(model, product, List.of(e.getMessage()), name, price, imageUrl, categoryId);
