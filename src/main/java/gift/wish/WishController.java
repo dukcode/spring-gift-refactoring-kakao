@@ -69,11 +69,7 @@ public class WishController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        try {
-            wishService.removeWish(member.getId(), id);
-            return ResponseEntity.noContent().build();
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
+        wishService.removeWish(member.getId(), id);
+        return ResponseEntity.noContent().build();
     }
 }

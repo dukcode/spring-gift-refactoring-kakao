@@ -19,4 +19,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Void> handleNoSuchElement(NoSuchElementException e) {
         return ResponseEntity.notFound().build();
     }
+
+    @ExceptionHandler(ForbiddenAccessException.class)
+    public ResponseEntity<Void> handleForbiddenAccess(ForbiddenAccessException e) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    }
 }
