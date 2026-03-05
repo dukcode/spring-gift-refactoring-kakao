@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class OrderService {
@@ -36,6 +37,7 @@ public class OrderService {
         return orderRepository.findByMemberId(memberId, pageable);
     }
 
+    @Transactional
     public Order createOrder(Member member, Long optionId, int quantity, String message) {
         Option option = optionRepository.findById(optionId)
             .orElseThrow(() -> new NoSuchElementException("Option not found"));
