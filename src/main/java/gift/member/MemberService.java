@@ -54,6 +54,12 @@ public class MemberService {
     }
 
     @Transactional
+    public void deductPoint(Member member, int amount) {
+        member.deductPoint(amount);
+        memberRepository.save(member);
+    }
+
+    @Transactional
     public void delete(Long id) {
         memberRepository.deleteById(id);
     }

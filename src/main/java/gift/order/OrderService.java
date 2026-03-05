@@ -1,11 +1,10 @@
 package gift.order;
 
 import gift.member.Member;
-import gift.member.MemberRepository;
+import gift.member.MemberService;
 import gift.option.Option;
-import gift.option.OptionRepository;
-import gift.wish.WishRepository;
-import java.util.NoSuchElementException;
+import gift.option.OptionService;
+import gift.wish.WishService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -19,23 +18,23 @@ public class OrderService {
     private static final Logger log = LoggerFactory.getLogger(OrderService.class);
 
     private final OrderRepository orderRepository;
-    private final OptionRepository optionRepository;
-    private final MemberRepository memberRepository;
+    private final OptionService optionService;
+    private final MemberService memberService;
     private final KakaoMessageClient kakaoMessageClient;
-    private final WishRepository wishRepository;
+    private final WishService wishService;
 
     public OrderService(
         OrderRepository orderRepository,
-        OptionRepository optionRepository,
-        MemberRepository memberRepository,
+        OptionService optionService,
+        MemberService memberService,
         KakaoMessageClient kakaoMessageClient,
-        WishRepository wishRepository
+        WishService wishService
     ) {
         this.orderRepository = orderRepository;
-        this.optionRepository = optionRepository;
-        this.memberRepository = memberRepository;
+        this.optionService = optionService;
+        this.memberService = memberService;
         this.kakaoMessageClient = kakaoMessageClient;
-        this.wishRepository = wishRepository;
+        this.wishService = wishService;
     }
 
     public Page<Order> getOrders(Long memberId, Pageable pageable) {
@@ -44,18 +43,16 @@ public class OrderService {
 
     @Transactional
     public Order createOrder(Member member, Long optionId, int quantity, String message) {
-        Option option = optionRepository.findById(optionId)
-            .orElseThrow(() -> new NoSuchElementException("옵션이 존재하지 않습니다. id=" + optionId));
+        Option option = optionService.findById(optionId);
 
         option.subtractQuantity(quantity);
 
         int price = option.calculateTotalPrice(quantity);
-        member.deductPoint(price);
-        memberRepository.save(member);
+        memberService.deductPoint(member, price);
 
         Order saved = orderRepository.save(new Order(option, member.getId(), quantity, message));
 
-        wishRepository.deleteByMemberIdAndProductId(member.getId(), option.getProduct().getId());
+        wishService.deleteByMemberIdAndProductId(member.getId(), option.getProduct().getId());
 
         sendKakaoMessageIfPossible(member, saved, option);
         return saved;
