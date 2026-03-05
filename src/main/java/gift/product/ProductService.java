@@ -32,19 +32,28 @@ public class ProductService {
             .orElseThrow(() -> new NoSuchElementException("상품이 존재하지 않습니다. id=" + id));
     }
 
-    public Product create(String name, int price, String imageUrl, Long categoryId) {
+    public Product create(String name, int price, String imageUrl, Long categoryId, boolean allowKakao) {
+        validateName(name, allowKakao);
         Category category = categoryRepository.findById(categoryId)
             .orElseThrow(() -> new NoSuchElementException("카테고리가 존재하지 않습니다. id=" + categoryId));
         return productRepository.save(new Product(name, price, imageUrl, category));
     }
 
     @Transactional
-    public Product update(Long id, String name, int price, String imageUrl, Long categoryId) {
+    public Product update(Long id, String name, int price, String imageUrl, Long categoryId, boolean allowKakao) {
+        validateName(name, allowKakao);
         Product product = findById(id);
         Category category = categoryRepository.findById(categoryId)
             .orElseThrow(() -> new NoSuchElementException("카테고리가 존재하지 않습니다. id=" + categoryId));
         product.update(name, price, imageUrl, category);
         return productRepository.save(product);
+    }
+
+    private void validateName(String name, boolean allowKakao) {
+        List<String> errors = ProductNameValidator.validate(name, allowKakao);
+        if (!errors.isEmpty()) {
+            throw new IllegalArgumentException(String.join(", ", errors));
+        }
     }
 
     public void delete(Long id) {
