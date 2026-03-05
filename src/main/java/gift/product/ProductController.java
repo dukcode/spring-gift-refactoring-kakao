@@ -36,7 +36,7 @@ public class ProductController {
 
     @PostMapping
     public ResponseEntity<ProductResponse> createProduct(@Valid @RequestBody ProductRequest request) {
-        Product saved = productService.create(request, false);
+        Product saved = productService.create(request);
         return ResponseEntity.created(URI.create("/api/products/" + saved.getId()))
             .body(ProductResponse.from(saved));
     }
@@ -46,7 +46,7 @@ public class ProductController {
         @PathVariable Long id,
         @Valid @RequestBody ProductRequest request
     ) {
-        Product saved = productService.update(id, request, false);
+        Product saved = productService.update(id, request);
         return ResponseEntity.ok(ProductResponse.from(saved));
     }
 

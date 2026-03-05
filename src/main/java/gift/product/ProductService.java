@@ -34,15 +34,31 @@ public class ProductService {
     }
 
     @Transactional
-    public Product create(ProductRequest request, boolean allowKakao) {
-        validateName(request.name(), allowKakao);
+    public Product create(ProductRequest request) {
+        validateName(request.name(), false);
         Category category = categoryService.findById(request.categoryId());
         return productRepository.save(request.toEntity(category));
     }
 
     @Transactional
-    public Product update(Long id, ProductRequest request, boolean allowKakao) {
-        validateName(request.name(), allowKakao);
+    public Product createForAdmin(ProductRequest request) {
+        validateName(request.name(), true);
+        Category category = categoryService.findById(request.categoryId());
+        return productRepository.save(request.toEntity(category));
+    }
+
+    @Transactional
+    public Product update(Long id, ProductRequest request) {
+        validateName(request.name(), false);
+        Product product = findById(id);
+        Category category = categoryService.findById(request.categoryId());
+        product.update(request.name(), request.price(), request.imageUrl(), category);
+        return product;
+    }
+
+    @Transactional
+    public Product updateForAdmin(Long id, ProductRequest request) {
+        validateName(request.name(), true);
         Product product = findById(id);
         Category category = categoryService.findById(request.categoryId());
         product.update(request.name(), request.price(), request.imageUrl(), category);
