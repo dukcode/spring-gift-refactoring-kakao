@@ -44,7 +44,7 @@ public class AdminProductController {
         try {
             productService.create(new ProductRequest(name, price, imageUrl, categoryId), true);
         } catch (IllegalArgumentException e) {
-            populateNewForm(model, List.of(e.getMessage()), name, price, imageUrl, categoryId);
+            populateForm(model, null, List.of(e.getMessage()), name, price, imageUrl, categoryId);
             return "product/new";
         }
         return "redirect:/admin/products";
@@ -70,7 +70,7 @@ public class AdminProductController {
             productService.update(id, new ProductRequest(name, price, imageUrl, categoryId), true);
         } catch (IllegalArgumentException e) {
             Product product = productService.findById(id);
-            populateEditForm(model, product, List.of(e.getMessage()), name, price, imageUrl, categoryId);
+            populateForm(model, product, List.of(e.getMessage()), name, price, imageUrl, categoryId);
             return "product/edit";
         }
         return "redirect:/admin/products";
@@ -82,23 +82,7 @@ public class AdminProductController {
         return "redirect:/admin/products";
     }
 
-    private void populateNewForm(
-        Model model,
-        List<String> errors,
-        String name,
-        int price,
-        String imageUrl,
-        Long categoryId
-    ) {
-        model.addAttribute("errors", errors);
-        model.addAttribute("name", name);
-        model.addAttribute("price", price);
-        model.addAttribute("imageUrl", imageUrl);
-        model.addAttribute("categoryId", categoryId);
-        model.addAttribute("categories", categoryService.findAll());
-    }
-
-    private void populateEditForm(
+    private void populateForm(
         Model model,
         Product product,
         List<String> errors,
