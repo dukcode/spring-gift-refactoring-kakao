@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional(readOnly = true)
 public class CategoryService {
     private final CategoryRepository categoryRepository;
 
@@ -22,6 +23,7 @@ public class CategoryService {
             .orElseThrow(() -> new NoSuchElementException("카테고리가 존재하지 않습니다. id=" + id));
     }
 
+    @Transactional
     public Category create(CategoryRequest request) {
         return categoryRepository.save(request.toEntity());
     }
@@ -33,6 +35,7 @@ public class CategoryService {
         return category;
     }
 
+    @Transactional
     public void delete(Long id) {
         categoryRepository.deleteById(id);
     }

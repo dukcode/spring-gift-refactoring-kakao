@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional(readOnly = true)
 public class ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
@@ -32,6 +33,7 @@ public class ProductService {
             .orElseThrow(() -> new NoSuchElementException("상품이 존재하지 않습니다. id=" + id));
     }
 
+    @Transactional
     public Product create(ProductRequest request, boolean allowKakao) {
         validateName(request.name(), allowKakao);
         Category category = categoryRepository.findById(request.categoryId())
@@ -56,6 +58,7 @@ public class ProductService {
         }
     }
 
+    @Transactional
     public void delete(Long id) {
         productRepository.deleteById(id);
     }

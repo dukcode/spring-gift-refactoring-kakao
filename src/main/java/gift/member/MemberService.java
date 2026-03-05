@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional(readOnly = true)
 public class MemberService {
     private final MemberRepository memberRepository;
 
@@ -21,6 +22,7 @@ public class MemberService {
             .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다. id=" + id));
     }
 
+    @Transactional
     public Member register(String email, String password) {
         if (memberRepository.existsByEmail(email)) {
             throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
@@ -51,6 +53,7 @@ public class MemberService {
         return member;
     }
 
+    @Transactional
     public void delete(Long id) {
         memberRepository.deleteById(id);
     }

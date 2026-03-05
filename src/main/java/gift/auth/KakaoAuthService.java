@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
+@Transactional(readOnly = true)
 public class KakaoAuthService {
     private final KakaoLoginProperties properties;
     private final KakaoLoginClient kakaoLoginClient;

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional(readOnly = true)
 public class WishService {
     private final WishRepository wishRepository;
     private final ProductRepository productRepository;
