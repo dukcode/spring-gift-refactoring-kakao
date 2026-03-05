@@ -466,3 +466,38 @@ AI는 크게 두 가지 역할로 활용되었다.
 ### 문제 발견 → 문서에 기록
 
 코드 분석 과정에서 발견한 이슈(트랜잭션 부재, 위시 클린업 미구현, 인증 패턴 반복)를 TECH_SPEC.md와 FEATURES.md에 명시적으로 기록하여, 이후 리팩터링 단계에서 참조할 수 있도록 했다.
+
+---
+
+## PR #37 리뷰 대응 (리팩터링 반영)
+
+- **Prompt**: PR #37에 달린 8개 리뷰 코멘트를 분석하고, 각각에 대해 코드를 수정하여 커밋
+- **Action**:
+  - `OrderService.java`: `@Transactional` 제거 (1단계 원칙 준수), SLF4J 로깅 추가 (Exception swallowing 해소)
+  - `Option.java`: `calculateTotalPrice(int quantity)` 메서드 추가 (Tell Don't Ask 원칙)
+  - `OrderService.java`: `option.calculateTotalPrice(quantity)` 사용으로 도메인 위임
+  - `WishController.java`, `OrderController.java`: 매직 넘버 → `HttpStatus` 상수 교체
+  - `WishService.java`: `addWishIdempotent()` + `AddWishResult` record 추가 (비즈니스 로직 서비스 이동)
+  - `WishController.java`: 중복 체크 로직 제거, `ResponseEntity<?>` → 구체적 타입 복원
+  - `AuthService.java` 신규 생성: JWT 생성 로직을 서비스 계층으로 분리
+  - `MemberController.java`: `JwtProvider` → `AuthService` 의존으로 변경
+  - `build.gradle.kts`: ArchUnit 의존성 추가
+  - `ArchitectureTest.java` 신규 생성: Controller → Repository 직접 의존 금지 규칙
+- **Outcome**: 6개 커밋으로 분리하여 반영. 전체 테스트(ArchUnit 포함) 통과 확인.
+
+---
+
+## [Step 2] 작동 변경 — Phase 1~4 구현
+
+- **Prompt**: Step 2 계획서(9개 커밋)를 그대로 구현해줘.
+- **Action**:
+  - **Commit 1 (테스트)**: `common-cleanup.sql`, `order/setup.sql`, `OrderIntegrationTest.java` 생성. 정상주문/재고부족/포인트부족/위시자동제거 5개 시나리오 포함.
+  - **Commit 2 (ADR)**: `docs/adr/001-transaction-boundaries.md` — 트랜잭션 경계 결정 및 trade-off 문서화.
+  - **Commit 3 (작동)**: `OrderService.createOrder()`에 `@Transactional` 추가. 포인트 부족 시 재고 롤백 버그 수정.
+  - **Commit 4 (작동)**: `OptionService.create/delete`, `WishService.addWishIdempotent/removeWish`에 `@Transactional` 추가.
+  - **Commit 5 (작동)**: `WishRepository.deleteByMemberIdAndProductId()` 추가, `OrderService`에 주문 후 위시 자동 삭제 로직 추가. FEATURES.md "(미구현)" 기능 완성.
+  - **Commit 6 (작동)**: `OrderController`에 `@ExceptionHandler(IllegalArgumentException.class)` 추가(500→400). Cucumber 시나리오 기대 코드 변경.
+  - **Commit 7 (구조)**: 상품 이름 검증을 `ProductService.create/update(allowKakao)`로 통합. 컨트롤러 중복 제거.
+  - **Commit 8 (구조)**: `Member.matchesPassword()`, `Wish.belongsTo()` 도메인 메서드 추가. Tell Don't Ask 적용.
+  - **Commit 9 (구조)**: `KakaoMessageClient` 가격 계산을 `Option.calculateTotalPrice()`로 통일. `CategoryService/MemberService/ProductService`의 `@Transactional` 내 불필요한 `save()` 제거. `OrderService`의 `optionRepository.save()` 제거.
+- **Outcome**: 전체 테스트(`./gradlew test`) 통과. 포인트 부족 시 재고 롤백, 위시 자동 제거, 400 에러 코드 모두 `OrderIntegrationTest`로 검증됨.
