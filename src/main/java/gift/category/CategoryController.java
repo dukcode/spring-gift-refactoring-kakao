@@ -3,7 +3,6 @@ package gift.category;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
-import java.util.NoSuchElementException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,13 +43,9 @@ public class CategoryController {
         @PathVariable Long id,
         @Valid @RequestBody CategoryRequest request
     ) {
-        try {
-            Category updated = categoryService.update(
-                id, request.name(), request.color(), request.imageUrl(), request.description());
-            return ResponseEntity.ok(CategoryResponse.from(updated));
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.notFound().build();
-        }
+        Category updated = categoryService.update(
+            id, request.name(), request.color(), request.imageUrl(), request.description());
+        return ResponseEntity.ok(CategoryResponse.from(updated));
     }
 
     @DeleteMapping("/{id}")

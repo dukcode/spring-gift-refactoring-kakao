@@ -4,7 +4,6 @@ import gift.auth.AuthenticationResolver;
 import gift.wish.WishService.AddWishResult;
 import jakarta.validation.Valid;
 import java.net.URI;
-import java.util.NoSuchElementException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -52,16 +51,12 @@ public class WishController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        try {
-            AddWishResult result = wishService.addWishIdempotent(member.getId(), request.productId());
-            if (result.created()) {
-                return ResponseEntity.created(URI.create("/api/wishes/" + result.wish().getId()))
-                    .body(WishResponse.from(result.wish()));
-            }
-            return ResponseEntity.ok(WishResponse.from(result.wish()));
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.notFound().build();
+        AddWishResult result = wishService.addWishIdempotent(member.getId(), request.productId());
+        if (result.created()) {
+            return ResponseEntity.created(URI.create("/api/wishes/" + result.wish().getId()))
+                .body(WishResponse.from(result.wish()));
         }
+        return ResponseEntity.ok(WishResponse.from(result.wish()));
     }
 
     @DeleteMapping("/{id}")
@@ -77,8 +72,6 @@ public class WishController {
         try {
             wishService.removeWish(member.getId(), id);
             return ResponseEntity.noContent().build();
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.notFound().build();
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }

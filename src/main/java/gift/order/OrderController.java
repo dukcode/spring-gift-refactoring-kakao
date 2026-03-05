@@ -3,11 +3,9 @@ package gift.order;
 import gift.auth.AuthenticationResolver;
 import jakarta.validation.Valid;
 import java.net.URI;
-import java.util.NoSuchElementException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -49,19 +47,10 @@ public class OrderController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        try {
-            Order saved = orderService.createOrder(
-                member, request.optionId(), request.quantity(), request.message()
-            );
-            return ResponseEntity.created(URI.create("/api/orders/" + saved.getId()))
-                .body(OrderResponse.from(saved));
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<String> handleIllegalArgument(IllegalArgumentException e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        Order saved = orderService.createOrder(
+            member, request.optionId(), request.quantity(), request.message()
+        );
+        return ResponseEntity.created(URI.create("/api/orders/" + saved.getId()))
+            .body(OrderResponse.from(saved));
     }
 }
