@@ -26,7 +26,7 @@ public class CategoryService {
         Category category = categoryRepository.findById(id)
             .orElseThrow(() -> new NoSuchElementException("카테고리가 존재하지 않습니다. id=" + id));
         category.update(name, color, imageUrl, description);
-        return categoryRepository.save(category);
+        return category;
     }
 
     public void delete(Long id) {

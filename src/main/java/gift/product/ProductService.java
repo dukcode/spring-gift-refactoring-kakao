@@ -46,7 +46,7 @@ public class ProductService {
         Category category = categoryRepository.findById(categoryId)
             .orElseThrow(() -> new NoSuchElementException("카테고리가 존재하지 않습니다. id=" + categoryId));
         product.update(name, price, imageUrl, category);
-        return productRepository.save(product);
+        return product;
     }
 
     private void validateName(String name, boolean allowKakao) {

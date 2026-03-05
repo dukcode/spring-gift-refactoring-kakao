@@ -41,14 +41,14 @@ public class MemberService {
     public Member update(Long id, String email, String password) {
         Member member = findById(id);
         member.update(email, password);
-        return memberRepository.save(member);
+        return member;
     }
 
     @Transactional
     public Member chargePoint(Long id, int amount) {
         Member member = findById(id);
         member.chargePoint(amount);
-        return memberRepository.save(member);
+        return member;
     }
 
     public void delete(Long id) {

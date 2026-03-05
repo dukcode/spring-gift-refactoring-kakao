@@ -47,7 +47,6 @@ public class OrderService {
             .orElseThrow(() -> new NoSuchElementException("Option not found"));
 
         option.subtractQuantity(quantity);
-        optionRepository.save(option);
 
         int price = option.calculateTotalPrice(quantity);
         member.deductPoint(price);
