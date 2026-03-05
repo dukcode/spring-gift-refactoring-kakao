@@ -17,14 +17,18 @@ public class CategoryService {
         return categoryRepository.findAll();
     }
 
+    public Category findById(Long id) {
+        return categoryRepository.findById(id)
+            .orElseThrow(() -> new NoSuchElementException("카테고리가 존재하지 않습니다. id=" + id));
+    }
+
     public Category create(CategoryRequest request) {
         return categoryRepository.save(request.toEntity());
     }
 
     @Transactional
     public Category update(Long id, CategoryRequest request) {
-        Category category = categoryRepository.findById(id)
-            .orElseThrow(() -> new NoSuchElementException("카테고리가 존재하지 않습니다. id=" + id));
+        Category category = findById(id);
         category.update(request.name(), request.color(), request.imageUrl(), request.description());
         return category;
     }

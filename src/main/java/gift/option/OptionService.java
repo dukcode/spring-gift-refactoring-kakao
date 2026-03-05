@@ -17,6 +17,11 @@ public class OptionService {
         this.productRepository = productRepository;
     }
 
+    public Option findById(Long id) {
+        return optionRepository.findById(id)
+            .orElseThrow(() -> new NoSuchElementException("옵션이 존재하지 않습니다. id=" + id));
+    }
+
     public List<Option> getOptions(Long productId) {
         productRepository.findById(productId)
             .orElseThrow(() -> new NoSuchElementException("상품이 존재하지 않습니다. id=" + productId));
