@@ -4,6 +4,7 @@ import gift.member.Member;
 import gift.member.MemberRepository;
 import gift.option.Option;
 import gift.option.OptionRepository;
+import gift.wish.WishRepository;
 import java.util.NoSuchElementException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,17 +21,20 @@ public class OrderService {
     private final OptionRepository optionRepository;
     private final MemberRepository memberRepository;
     private final KakaoMessageClient kakaoMessageClient;
+    private final WishRepository wishRepository;
 
     public OrderService(
         OrderRepository orderRepository,
         OptionRepository optionRepository,
         MemberRepository memberRepository,
-        KakaoMessageClient kakaoMessageClient
+        KakaoMessageClient kakaoMessageClient,
+        WishRepository wishRepository
     ) {
         this.orderRepository = orderRepository;
         this.optionRepository = optionRepository;
         this.memberRepository = memberRepository;
         this.kakaoMessageClient = kakaoMessageClient;
+        this.wishRepository = wishRepository;
     }
 
     public Page<Order> getOrders(Long memberId, Pageable pageable) {
@@ -50,6 +54,8 @@ public class OrderService {
         memberRepository.save(member);
 
         Order saved = orderRepository.save(new Order(option, member.getId(), quantity, message));
+
+        wishRepository.deleteByMemberIdAndProductId(member.getId(), option.getProduct().getId());
 
         sendKakaoMessageIfPossible(member, saved, option);
         return saved;
