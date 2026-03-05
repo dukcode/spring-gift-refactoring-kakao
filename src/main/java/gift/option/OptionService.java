@@ -5,6 +5,7 @@ import gift.product.ProductRepository;
 import java.util.List;
 import java.util.NoSuchElementException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class OptionService {
@@ -22,6 +23,7 @@ public class OptionService {
         return optionRepository.findByProductId(productId);
     }
 
+    @Transactional
     public Option create(Long productId, String name, int quantity) {
         validateName(name);
 
@@ -35,6 +37,7 @@ public class OptionService {
         return optionRepository.save(new Option(product, name, quantity));
     }
 
+    @Transactional
     public void delete(Long productId, Long optionId) {
         productRepository.findById(productId)
             .orElseThrow(() -> new NoSuchElementException("상품이 존재하지 않습니다. id=" + productId));

@@ -5,6 +5,7 @@ import java.util.NoSuchElementException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class WishService {
@@ -20,6 +21,7 @@ public class WishService {
         return wishRepository.findByMemberId(memberId, pageable);
     }
 
+    @Transactional
     public AddWishResult addWishIdempotent(Long memberId, Long productId) {
         var existing = wishRepository.findByMemberIdAndProductId(memberId, productId);
         if (existing.isPresent()) {
@@ -34,6 +36,7 @@ public class WishService {
     public record AddWishResult(Wish wish, boolean created) {
     }
 
+    @Transactional
     public void removeWish(Long memberId, Long wishId) {
         Wish wish = wishRepository.findById(wishId)
             .orElseThrow(() -> new NoSuchElementException("위시가 존재하지 않습니다. id=" + wishId));
