@@ -1,7 +1,7 @@
 package gift.option;
 
 import gift.product.Product;
-import gift.product.ProductRepository;
+import gift.product.ProductService;
 import java.util.List;
 import java.util.NoSuchElementException;
 import org.springframework.stereotype.Service;
@@ -11,11 +11,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class OptionService {
     private final OptionRepository optionRepository;
-    private final ProductRepository productRepository;
+    private final ProductService productService;
 
-    public OptionService(OptionRepository optionRepository, ProductRepository productRepository) {
+    public OptionService(OptionRepository optionRepository, ProductService productService) {
         this.optionRepository = optionRepository;
-        this.productRepository = productRepository;
+        this.productService = productService;
     }
 
     public Option findById(Long id) {
@@ -24,8 +24,7 @@ public class OptionService {
     }
 
     public List<Option> getOptions(Long productId) {
-        productRepository.findById(productId)
-            .orElseThrow(() -> new NoSuchElementException("상품이 존재하지 않습니다. id=" + productId));
+        productService.findById(productId);
         return optionRepository.findByProductId(productId);
     }
 
@@ -33,8 +32,7 @@ public class OptionService {
     public Option create(Long productId, OptionRequest request) {
         validateName(request.name());
 
-        Product product = productRepository.findById(productId)
-            .orElseThrow(() -> new NoSuchElementException("상품이 존재하지 않습니다. id=" + productId));
+        Product product = productService.findById(productId);
 
         if (optionRepository.existsByProductIdAndName(productId, request.name())) {
             throw new IllegalArgumentException("이미 존재하는 옵션명입니다.");
@@ -45,8 +43,7 @@ public class OptionService {
 
     @Transactional
     public void delete(Long productId, Long optionId) {
-        productRepository.findById(productId)
-            .orElseThrow(() -> new NoSuchElementException("상품이 존재하지 않습니다. id=" + productId));
+        productService.findById(productId);
 
         List<Option> options = optionRepository.findByProductId(productId);
         if (options.size() <= 1) {
