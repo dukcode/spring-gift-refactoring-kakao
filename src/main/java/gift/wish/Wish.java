@@ -28,6 +28,10 @@ public class Wish {
         this.product = product;
     }
 
+    public boolean belongsTo(Long memberId) {
+        return this.memberId.equals(memberId);
+    }
+
     public Long getId() {
         return id;
     }
