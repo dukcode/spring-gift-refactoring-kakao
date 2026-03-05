@@ -1,5 +1,6 @@
 package gift.common;
 
+import gift.auth.UnauthorizedException;
 import java.util.NoSuchElementException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,5 +24,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ForbiddenAccessException.class)
     public ResponseEntity<Void> handleForbiddenAccess(ForbiddenAccessException e) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<Void> handleUnauthorized(UnauthorizedException e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 }
